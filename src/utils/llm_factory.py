@@ -95,6 +95,30 @@ def get_llm(provider: str = None, temperature: float = 0.0):
         )
 
 
+from langchain_openai import OpenAIEmbeddings
+
+class AlibabaEmbeddings(OpenAIEmbeddings):
+    def _get_len_safe_embeddings(
+        self, texts: list[str], *, engine: str = None, chunk_size: int = None
+    ) -> list[list[float]]:
+        """
+        Bypass tokenization and send raw text strings directly to DashScope,
+        as Alibaba's compatibility API only supports string or list of strings.
+        """
+        batch_size = 10
+        embeddings = []
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            import config
+            model_name = config.ALIBABA_EMBEDDING_MODEL or "text-embedding-v2"
+            response = self.client.create(
+                input=batch,
+                model=model_name,
+            )
+            embeddings.extend([r.embedding for r in response.data])
+        return embeddings
+
+
 def get_embeddings(provider: str = None):
     """
     Trả về Embeddings instance tương ứng với provider được chọn.
@@ -148,8 +172,7 @@ def get_embeddings(provider: str = None):
         )
 
     elif provider == "alibaba":
-        from langchain_openai import OpenAIEmbeddings
-        return OpenAIEmbeddings(
+        return AlibabaEmbeddings(
             model=config.ALIBABA_EMBEDDING_MODEL,
             api_key=config.ALIBABA_API_KEY,
             base_url=config.ALIBABA_BASE_URL,
