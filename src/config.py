@@ -19,7 +19,7 @@ os.environ["LANGCHAIN_PROJECT"]    = os.getenv("LANGCHAIN_PROJECT", "day22-lab")
 os.environ["LANGCHAIN_ENDPOINT"]   = os.getenv("LANGCHAIN_ENDPOINT", "https://api.smith.langchain.com")
 
 # ── Provider mặc định ─────────────────────────────────────────────────────
-# Đổi giá trị PROVIDER trong .env: openai | gemini | anthropic | ollama | openrouter
+# Đổi giá trị PROVIDER trong .env: openai | gemini | anthropic | ollama | openrouter | alibaba
 PROVIDER = os.getenv("PROVIDER", "openai").lower()
 
 # ── OpenAI ────────────────────────────────────────────────────────────────
@@ -47,6 +47,12 @@ OPENROUTER_API_KEY  = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_MODEL    = os.getenv("OPENROUTER_MODEL", "openai/gpt-4o-mini")
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
+# ── Alibaba ───────────────────────────────────────────────────────────────
+ALIBABA_API_KEY         = os.getenv("ALIBABA_API_KEY", "")
+ALIBABA_MODEL           = os.getenv("ALIBABA_MODEL", "qwen-plus")
+ALIBABA_EMBEDDING_MODEL = os.getenv("ALIBABA_EMBEDDING_MODEL", "text-embedding-v2")
+ALIBABA_BASE_URL        = os.getenv("ALIBABA_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+
 # ── LangSmith ─────────────────────────────────────────────────────────────
 LANGSMITH_API_KEY = os.getenv("LANGCHAIN_API_KEY", "")
 LANGSMITH_PROJECT = os.getenv("LANGCHAIN_PROJECT", "day22-lab")
@@ -70,6 +76,8 @@ def validate() -> bool:
         missing.append("ANTHROPIC_API_KEY")
     elif PROVIDER == "openrouter" and not OPENROUTER_API_KEY:
         missing.append("OPENROUTER_API_KEY")
+    elif PROVIDER == "alibaba" and not ALIBABA_API_KEY:
+        missing.append("ALIBABA_API_KEY")
     # Ollama: không cần API key
 
     if missing:

@@ -1,5 +1,5 @@
 """
-Factory tạo LLM và Embeddings cho 5 providers: openai, gemini, anthropic, ollama, openrouter.
+Factory tạo LLM và Embeddings cho các providers: openai, gemini, anthropic, ollama, openrouter, alibaba.
 
 Cách dùng:
     from utils.llm_factory import get_llm, get_embeddings
@@ -21,7 +21,7 @@ def get_llm(provider: str = None, temperature: float = 0.0):
     Trả về BaseChatModel tương ứng với provider được chọn.
 
     Args:
-        provider    : "openai" | "gemini" | "anthropic" | "ollama" | "openrouter"
+        provider    : "openai" | "gemini" | "anthropic" | "ollama" | "openrouter" | "alibaba"
                       Mặc định: đọc PROVIDER từ .env (config.PROVIDER)
         temperature : độ ngẫu nhiên (0.0 = tất định, 1.0 = sáng tạo)
 
@@ -79,10 +79,19 @@ def get_llm(provider: str = None, temperature: float = 0.0):
             temperature=temperature,
         )
 
+    elif provider == "alibaba":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model=config.ALIBABA_MODEL,
+            api_key=config.ALIBABA_API_KEY,
+            base_url=config.ALIBABA_BASE_URL,
+            temperature=temperature,
+        )
+
     else:
         raise ValueError(
             f"Provider không hợp lệ: '{provider}'. "
-            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter"
+            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter, alibaba"
         )
 
 
@@ -97,7 +106,7 @@ def get_embeddings(provider: str = None):
           Cài đặt: ollama pull nomic-embed-text
 
     Args:
-        provider: "openai" | "gemini" | "anthropic" | "ollama" | "openrouter"
+        provider: "openai" | "gemini" | "anthropic" | "ollama" | "openrouter" | "alibaba"
                   Mặc định: đọc PROVIDER từ .env
 
     Returns:
@@ -138,8 +147,16 @@ def get_embeddings(provider: str = None):
             base_url=config.OLLAMA_BASE_URL,
         )
 
+    elif provider == "alibaba":
+        from langchain_openai import OpenAIEmbeddings
+        return OpenAIEmbeddings(
+            model=config.ALIBABA_EMBEDDING_MODEL,
+            api_key=config.ALIBABA_API_KEY,
+            base_url=config.ALIBABA_BASE_URL,
+        )
+
     else:
         raise ValueError(
             f"Provider không hợp lệ: '{provider}'. "
-            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter"
+            "Chọn một trong: openai, gemini, anthropic, ollama, openrouter, alibaba"
         )
