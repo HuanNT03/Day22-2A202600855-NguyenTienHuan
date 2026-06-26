@@ -7,6 +7,35 @@ Cách dùng:
     python run_all.py --step 3   # chỉ chạy Bước 3 (RAGAS ~15-30 phút)
 """
 import sys
+# Mock _lzma for environments with python built without lzma support (fixes datasets/ragas import)
+try:
+    import _lzma
+except ImportError:
+    from unittest.mock import MagicMock
+    mock_lzma = MagicMock()
+    mock_lzma.FORMAT_AUTO = 0
+    mock_lzma.FORMAT_XZ = 1
+    mock_lzma.FORMAT_ALONE = 2
+    mock_lzma.FORMAT_RAW = 3
+    mock_lzma.CHECK_NONE = 0
+    mock_lzma.CHECK_CRC32 = 1
+    mock_lzma.CHECK_CRC64 = 4
+    mock_lzma.CHECK_SHA256 = 12
+    class MockLZMAError(Exception): pass
+    mock_lzma.LZMAError = MockLZMAError
+    mock_lzma.LZMACompressor = MagicMock
+    mock_lzma.LZMADecompressor = MagicMock
+    mock_lzma.__all__ = [
+        "FORMAT_AUTO", "FORMAT_XZ", "FORMAT_ALONE", "FORMAT_RAW",
+        "CHECK_NONE", "CHECK_CRC32", "CHECK_CRC64", "CHECK_SHA256",
+        "LZMAError", "LZMACompressor", "LZMADecompressor"
+    ]
+    sys.modules["_lzma"] = mock_lzma
+
+# Mock missing vertexai modules in langchain_community 0.3.x for ragas compatibility
+from unittest.mock import MagicMock
+sys.modules["langchain_community.chat_models.vertexai"] = MagicMock()
+sys.modules["langchain_community.embeddings.vertexai"] = MagicMock()
 import argparse
 import importlib
 from pathlib import Path

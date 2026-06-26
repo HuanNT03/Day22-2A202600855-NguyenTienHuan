@@ -86,6 +86,7 @@ def get_llm(provider: str = None, temperature: float = 0.0):
             api_key=config.ALIBABA_API_KEY,
             base_url=config.ALIBABA_BASE_URL,
             temperature=temperature,
+            timeout=300.0,
         )
 
     else:
@@ -176,6 +177,7 @@ def get_embeddings(provider: str = None):
             model=config.ALIBABA_EMBEDDING_MODEL,
             api_key=config.ALIBABA_API_KEY,
             base_url=config.ALIBABA_BASE_URL,
+            timeout=300.0,
         )
 
     else:
