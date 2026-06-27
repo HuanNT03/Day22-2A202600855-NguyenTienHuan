@@ -50,6 +50,7 @@ OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 # ── Alibaba ───────────────────────────────────────────────────────────────
 ALIBABA_API_KEY         = os.getenv("ALIBABA_API_KEY", "")
 ALIBABA_MODEL           = os.getenv("ALIBABA_MODEL", "qwen-plus")
+ALIBABA_EVAL_MODEL      = os.getenv("ALIBABA_EVAL_MODEL", "qwen-turbo")
 ALIBABA_EMBEDDING_MODEL = os.getenv("ALIBABA_EMBEDDING_MODEL", "text-embedding-v2")
 ALIBABA_BASE_URL        = os.getenv("ALIBABA_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 

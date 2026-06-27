@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 import config
 
 
-def get_llm(provider: str = None, temperature: float = 0.0):
+def get_llm(provider: str = None, temperature: float = 0.0, is_eval: bool = False):
     """
     Trả về BaseChatModel tương ứng với provider được chọn.
 
@@ -24,6 +24,7 @@ def get_llm(provider: str = None, temperature: float = 0.0):
         provider    : "openai" | "gemini" | "anthropic" | "ollama" | "openrouter" | "alibaba"
                       Mặc định: đọc PROVIDER từ .env (config.PROVIDER)
         temperature : độ ngẫu nhiên (0.0 = tất định, 1.0 = sáng tạo)
+        is_eval     : cờ xác định dùng model cho evaluation (để tránh lỗi quota/enable_thinking của Alibaba)
 
     Returns:
         BaseChatModel instance sẵn sàng sử dụng
@@ -81,8 +82,9 @@ def get_llm(provider: str = None, temperature: float = 0.0):
 
     elif provider == "alibaba":
         from langchain_openai import ChatOpenAI
+        model_name = config.ALIBABA_EVAL_MODEL if is_eval else config.ALIBABA_MODEL
         return ChatOpenAI(
-            model=config.ALIBABA_MODEL,
+            model=model_name,
             api_key=config.ALIBABA_API_KEY,
             base_url=config.ALIBABA_BASE_URL,
             temperature=temperature,
@@ -118,6 +120,15 @@ class AlibabaEmbeddings(OpenAIEmbeddings):
             )
             embeddings.extend([r.embedding for r in response.data])
         return embeddings
+
+    async def aembed_documents(self, texts: list[str]) -> list[list[float]]:
+        """
+        RAGAS uses async aembed_documents by default. Override to use the custom synchronous
+        implementation above, preventing async tokenization hangs/timeouts on DashScope.
+        """
+        import asyncio
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self.embed_documents, texts)
 
 
 def get_embeddings(provider: str = None):

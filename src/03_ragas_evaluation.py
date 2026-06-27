@@ -48,7 +48,7 @@ import json
 import warnings
 warnings.filterwarnings("ignore")
 import os
-os.environ["RAGAS_MAX_WORKERS"] = "2"
+os.environ["RAGAS_MAX_WORKERS"] = "1"
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -190,8 +190,11 @@ def run_ragas_eval(rag_results: list, version: str) -> dict:
     dataset = build_ragas_dataset(rag_results)
 
     # LLM và Embeddings riêng để RAGAS dùng làm evaluator
-    llm_eval = get_llm(temperature=0)
+    llm_eval = get_llm(temperature=0, is_eval=True)
     emb_eval = get_embeddings()
+
+    from ragas.run_config import RunConfig
+    run_config = RunConfig(timeout=300, max_workers=1, max_retries=10)
 
     # TODO: Gọi evaluate() với đầy đủ 4 metrics
     # Gợi ý:
@@ -206,6 +209,7 @@ def run_ragas_eval(rag_results: list, version: str) -> dict:
         metrics=[faithfulness, answer_relevancy, context_recall, context_precision],
         llm=llm_eval,
         embeddings=emb_eval,
+        run_config=run_config,
     )
 
     # Tính mean score cho mỗi metric
